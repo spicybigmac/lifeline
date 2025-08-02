@@ -92,7 +92,7 @@ function Monitor(props) {
                         Video Feed
                         </h1>
 
-                        <div className="container">
+                        <div className="videocontainer">
                             <div className="item camView">
                                 {show &&
                                     <Webcam 

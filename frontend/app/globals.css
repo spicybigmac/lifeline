@@ -33,7 +33,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.container{
+.videocontainer{
   /* width : 1000px; */
   height : 350px;
   display: flex;
