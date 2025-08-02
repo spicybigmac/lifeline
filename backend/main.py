@@ -59,8 +59,6 @@ async def handle_response(SpeechResult: str = Form(None)):
 
     return Response(content=str(response), media_type="application/xml")
 
-# ------------- WEBSITE HANDLING ----------------
-
 class ProcessRequest(BaseModel):
     image: str
 
@@ -72,7 +70,7 @@ async def processfunction(request: ProcessRequest):
     image = image[image.find(",")+1:]
 
     global currid
-    path = f"images/{currid}.jpg"
+    path = f"images\\{currid}.jpg"
     currid += 1
 
     print("start read")
@@ -91,10 +89,14 @@ async def processfunction(request: ProcessRequest):
     else:
         print("File does not exist.")
 
+    print("hi",output[0].boxes.data.tolist())
+
     if (code == 0):
-        return output
+        return output[0].boxes.data.tolist()
     elif (code == -1):
         raise HTTPException(422, output)
+
+   
 
 @app.post("emergencyCall")
 async def emergencyCall():
