@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Form, Response
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import os
+import cv2
 import base64
 from twilio.twiml.voice_response import VoiceResponse, Gather
 import uvicorn
@@ -70,7 +71,7 @@ async def processfunction(request: ProcessRequest):
     image = image[image.find(",")+1:]
 
     global currid
-    path = f"images\\{currid}.jpg"
+    path = f"backend\\images\\{currid}.jpg"
     currid += 1
 
     print("start read")
@@ -89,18 +90,19 @@ async def processfunction(request: ProcessRequest):
     else:
         print("File does not exist.")
 
-    print("hi",output[0].boxes.data.tolist())
+    success, buffer = cv2.imencode(".jpg",output[0].plot())
+
+    if not success:
+        raise HTTPException(422, "Failed to generate output image.")
 
     if (code == 0):
-        return output[0].boxes.data.tolist()
-    elif (code == -1):
-        raise HTTPException(422, output)
-
+        return [base64.b64encode(buffer.tobytes()).decode("utf-8"),output[0].boxes.data.tolist()]
+    
+    raise HTTPException(422, output)
    
-
-@app.post("emergencyCall")
+@app.post("/emergencyCall")
 async def emergencyCall():
-    pass
+    print("called")
 
 if (__name__ == "__main__"):
     uvicorn.run("main:app", reload=True)

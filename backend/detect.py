@@ -9,5 +9,4 @@ def process(imagepath):
         print("error when processing image")
         return -1, e
         
-    print(res)
     return 0, res

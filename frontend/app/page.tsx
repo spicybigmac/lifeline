@@ -7,7 +7,9 @@ function WebcamSample() {
     const [show, set_show] = useState(false);
     const video_element = useRef(null);
     const interval = useRef(null);
-    let data;
+    const [data, set_data] = useState(null);
+    let counter = 0;
+    const threshold = 10;
     
     const videoConstraints = {
         width: 640,
@@ -28,10 +30,33 @@ function WebcamSample() {
                 throw new Error(errorData.detail || "Error processing image.");
             }
 
-            data = await response.json();
+            const dat = await response.json();
+            set_data(dat);
+
+            var has_fallen = false;
+            dat[1].forEach((result) => {
+                has_fallen ||= (result[5] == 0);
+            })
+
+            if(has_fallen){
+                ++counter;
+            } else {
+                counter = 0;
+            }
+            
+            if(counter == threshold){
+                await fetch('http://127.0.0.1:8000/emergencyCall', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: "",
+                });
+
+                stopCam();
+            }
+            
         } catch (error) {
             console.error("Error during processing:", error);
-            alert("Error processing image.");
+            alert("Error during processing.");
         }
     }
 
@@ -48,6 +73,8 @@ function WebcamSample() {
 
       clearInterval(interval.current);
       interval.current = null
+
+      set_data(null);
     }
 
     const toggle = () => {
@@ -71,6 +98,10 @@ function WebcamSample() {
                 }
             </div>
             <button onClick={toggle}>{show ? "Stop" : "Start"}</button>
+
+            <div className="analyzed">
+                <img src={data ? `data:image/jpeg;base64,${data[0]}` : undefined} />
+            </div>
         </div>
     );
 };
