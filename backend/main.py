@@ -70,7 +70,7 @@ async def processfunction(request: ProcessRequest):
     image = image[image.find(",")+1:]
 
     global currid
-    path = f"images/{currid}.jpg"
+    path = f"images\\{currid}.jpg"
     currid += 1
 
     print("start read")
@@ -84,15 +84,19 @@ async def processfunction(request: ProcessRequest):
 
     code, output = detect.process(path)
 
-    if (code == 0):
-        return output
-    elif (code == -1):
-        raise HTTPException(422, output)
-
     if os.path.exists(path):
         os.remove(path)
     else:
         print("File does not exist.")
+
+    print("hi",output[0].boxes.data.tolist())
+
+    if (code == 0):
+        return output[0].boxes.data.tolist()
+    elif (code == -1):
+        raise HTTPException(422, output)
+
+   
 
 @app.post("emergencyCall")
 async def emergencyCall():
