@@ -8,11 +8,12 @@ import Login from './components/login';
 
 const App: React.FC = () => {
     const [page, set_page] = useState("home");
-
     const [show, set_show] = useState(false);
     const video_element = useRef(null);
     const interval = useRef(null);
     const [data, set_data] = useState(null);
+    const [user, set_user] = useState("");
+
     let counter = 0;
     const threshold = 10;
     
@@ -22,28 +23,6 @@ const App: React.FC = () => {
         facingMode: "user"
     }
 
-    // const handleSubmit = async (e: React.FormEvent) => {
-    //     e.preventDefault();
-    //     setMessage('');
-
-    //     const endpoint = isLogin ? '/api/login' : '/api/register';
-
-    //     try {
-    //     const response = await fetch(endpoint, {
-    //         method: 'POST',
-    //         headers: { 'Content-Type': 'application/json' },
-    //         body: JSON.stringify({ email, password }),
-    //     });
-
-    //     const data = await response.json();
-        
-    //     setMessage(data.message);
-
-    //     } catch (error) {
-    //     setMessage('An unexpected error occurred.');
-    //     }
-    // };
-    
     const analyze = async () => {
         try {
             const response = await fetch('http://127.0.0.1:8000/processImage', {
@@ -113,15 +92,16 @@ const App: React.FC = () => {
     }
 
     const renderView = () => {
+        console.log(page)
         switch(page){
             case "home":
                 return <Home set_page={set_page}/>;
             case "monitor":
-                return <Monitor show={show} video_element={video_element} videoConstraints={videoConstraints} toggle={toggle} data={data} />;
+                return <Monitor show={show} video_element={video_element} videoConstraints={videoConstraints} toggle={toggle} data={data} user={user} />;
             case "register":
-                return <Register />
+                return <Register set_page={set_page} set_user={set_user} />
             case "login":
-                return <Login />
+                return <Login set_page={set_page} set_user={set_user} />
         }
     }
 

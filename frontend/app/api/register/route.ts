@@ -3,17 +3,17 @@ import clientPromise from '@/lib/mongodb';
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password } = await req.json();
+    const { name, password } = await req.json();
     const client = await clientPromise;
     const db = client.db("terrahacks");
 
-    const existingUser = await db.collection("users").findOne({ email });
+    const existingUser = await db.collection("users").findOne({ name });
     if (existingUser) {
       return NextResponse.json({ message: 'User already exists.' }, { status: 409 });
     }
 
     await db.collection("users").insertOne({
-      email,
+      name,
       password: password,
     });
 

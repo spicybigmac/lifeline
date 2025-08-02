@@ -3,11 +3,11 @@ import clientPromise from '@/lib/mongodb';
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password } = await req.json();
+    const { name, password } = await req.json();
     const client = await clientPromise;
     const db = client.db("terrahacks");
 
-    const user = await db.collection("users").findOne({ email });
+    const user = await db.collection("users").findOne({ name });
 
     if (!user) {
       return NextResponse.json({ message: 'User not found.' }, { status: 404 });
