@@ -14,6 +14,8 @@
   --color-brand-blue-dark: #003b6f;
   --color-brand-green: #2e7d32;
   --color-brand-green-dark: #1b5e20;
+  --color-brand-red: #eb4034;
+  --color-brane-red-dark: #ba3229;
   --color-brand-gray: #f5f5f5;
   --color-brand-text: #212121;
 }
@@ -29,4 +31,15 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.container{
+  /* width : 1000px; */
+  height : 350px;
+  display: flex;
+  gap : 20px;
+}
+
+.item {
+  width : 60%;
 }
