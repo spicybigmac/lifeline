@@ -1,0 +1,29 @@
+.history
+archive
+
+# Or more general if Python files are mixed
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+.env
+.venv
+env/
+venv/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*` file with this corrected version:
+
+```gitignore
+
+# IDE / Editor folders
+.idea/
+.vscode/
+
+*.env
+.env.*
+!.env.example
+
+.DS_Store
