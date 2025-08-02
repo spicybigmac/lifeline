@@ -1,8 +1,13 @@
 from ultralytics import YOLO
 
-model = YOLO("falling2.pt")
+model = YOLO("backend/falling.pt")
 
 def process(imagepath):
-    res = model.predict(imagepath)
+    try:
+        res = model.predict(imagepath)
+    except Exception as e:
+        print("error when processing image")
+        return -1, e
+        
     print(res)
-    return res
+    return 0, res

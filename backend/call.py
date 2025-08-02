@@ -13,17 +13,16 @@ instruction_url = f"{ngrok_url}/voice"
 
 client = Client(account_sid, auth_token)
 
-recipient_phone_number="+14374366580"
+def call(recipient_phone_number="+14374366580"):
+    try:
+        print(f"Initiating call to {recipient_phone_number}...")
+        call = client.calls.create(
+            url=instruction_url,
+            to=recipient_phone_number,
+            from_=twilio_phone_number
+        )
 
-try:
-    print(f"Initiating call to {recipient_phone_number}...")
-    call = client.calls.create(
-        url=instruction_url,
-        to=recipient_phone_number,
-        from_=twilio_phone_number
-    )
+        print(f"Call initiated successfully. Call SID: {call.sid}")
 
-    print(f"Call initiated successfully. Call SID: {call.sid}")
-
-except Exception as e:
-    print(f"Error making call: {e}")
+    except Exception as e:
+        print(f"Error making call: {e}")

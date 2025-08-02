@@ -59,6 +59,8 @@ async def handle_response(SpeechResult: str = Form(None)):
 
     return Response(content=str(response), media_type="application/xml")
 
+# ------------- WEBSITE HANDLING ----------------
+
 class ProcessRequest(BaseModel):
     image: str
 
@@ -84,15 +86,15 @@ async def processfunction(request: ProcessRequest):
 
     code, output = detect.process(path)
 
-    if (code == 0):
-        return output
-    elif (code == -1):
-        raise HTTPException(422, output)
-
     if os.path.exists(path):
         os.remove(path)
     else:
         print("File does not exist.")
+
+    if (code == 0):
+        return output
+    elif (code == -1):
+        raise HTTPException(422, output)
 
 @app.post("emergencyCall")
 async def emergencyCall():
