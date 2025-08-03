@@ -11,9 +11,9 @@ const HeartbeatAnimation: FC = () => (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 300">
             {/* The path is now static. The CSS mask will reveal it. */}
             <path
-                d="M-4000 150 L100 150 L105 130 L120 190 L130 90 L140 150 L160 150 L165 170 L170 130 L180 180 L188 140 L195 150 L4000 150"
-                stroke="#ff3b3b" /* Use a solid color now */
-                strokeWidth="5"
+                d="M0 150 L300 150 L305 130 L320 190 L330 90 L340 150 L360 150 L365 170 L370 130 L380 180 L388 140 L395 150 L595 150"
+                stroke="#960000ff" /* Use a solid color now */
+                strokeWidth="1"
                 fill="none"
             />
         </svg>
@@ -30,7 +30,7 @@ const App: FC = () => {
             case "home":
                 return <Home set_page={setPage} />;
             case "monitor":
-                return <Monitor />;
+                return <Monitor set_page={setPage}/>;
             case "register":
                 return <Register set_page={setPage} set_user={setUser} />;
             case "login":
