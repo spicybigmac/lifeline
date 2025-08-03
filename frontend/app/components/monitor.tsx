@@ -1,36 +1,92 @@
-// app/components/Monitor.tsx
 "use client";
-import React, { useState, useRef, FC, ChangeEvent, useMemo } from 'react';
+import React, { useState, useRef, FC, ChangeEvent, useMemo, useEffect } from 'react';
 import Webcam from 'react-webcam';
 
 interface MonitorComponentProps {
     set_page: (page: string) => void;
+    user: string;
 }
 
-const Monitor: FC<MonitorComponentProps> = ({ set_page }) => {
+const Monitor: FC<MonitorComponentProps> = ({ set_page, user }) => {
     const [profile, setProfile] = useState({
-        fullName: '', address: '', age: '',
-        conditions: '', emergencyContact: ''
+        fullName: '',
+        address: '',
+        age: '',
+        conditions: '',
+        emergencyContact: ''
     });
-    const [isEditing, setIsEditing] = useState(true);
+    const [isEditing, setIsEditing] = useState(true); 
+    const [isLoadingProfile, setIsLoadingProfile] = useState(true); 
+
     const [isMonitoring, setIsMonitoring] = useState(false);
     const webcamRef = useRef<Webcam>(null);
     const analysisInterval = useRef<NodeJS.Timeout | null>(null);
     const [processedData, setProcessedData] = useState<{ image: string | null; detections: any[] }>({ image: null, detections: [] });
-    
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            if (!user) {
+                setIsLoadingProfile(false);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/saveinfo?username=${user}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    setProfile({
+                        fullName: data.fullName || '',
+                        address: data.address || '',
+                        age: data.age || '',
+                        conditions: data.conditions || '',
+                        emergencyContact: data.emergencyContact || ''
+                    });
+                    setIsEditing(false); 
+                } else {
+                    console.log("No profile found for this user. Starting with a blank form.");
+                    setIsEditing(true); 
+                }
+            } catch (error) {
+                console.error("Failed to fetch profile:", error);
+                alert("Could not load user profile. Please try again later.");
+            } finally {
+                setIsLoadingProfile(false);
+            }
+        };
+
+        fetchProfile();
+    }, [user]);
+
     const isProfileComplete = useMemo(() => {
-        return Object.values(profile).every(value => value.trim() !== '');
+        return Object.values(profile).every(value => String(value).trim() !== '');
     }, [profile]);
 
     const handleProfileChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setProfile(prev => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
-    const handleSave = () => {
-        if (isProfileComplete) {
-            setIsEditing(false);
-        } else {
+    const handleSave = async () => {
+        if (!isProfileComplete) {
             alert("Please fill out all fields before saving.");
+            return;
+        }
+        try {
+            const response = await fetch('/api/saveinfo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: user, ...profile }),
+            });
+            if (response.ok) {
+                setIsEditing(false);
+                alert("Profile saved successfully!");
+            } else {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to save profile.");
+            }
+        } catch (error) {
+            console.error(error);
+            alert(`An error occurred while saving: ${error}`);
         }
     };
 
@@ -51,10 +107,10 @@ const Monitor: FC<MonitorComponentProps> = ({ set_page }) => {
             const data = await response.json();
             setProcessedData({ image: data[0], detections: data[1] });
             
-            // This logic could be moved to the backend for a real application
             const hasFallen = processedData.detections.some((d: any) => d[5] === 0);
             if(hasFallen) {
-                console.log("EMERGENCY: Fall detected! Contacting: ", profile.emergencyContact);
+                console.log(`EMERGENCY: Fall detected! Contacting: ${profile.emergencyContact}`);
+                // ADD CALLING HERE
                 stopMonitoring();
             }
 
@@ -79,15 +135,20 @@ const Monitor: FC<MonitorComponentProps> = ({ set_page }) => {
         setProcessedData({ image: null, detections: [] });
     };
 
+
+    if (isLoadingProfile) {
+        return <div className="auth-container"><h1>Loading Profile...</h1></div>;
+    }
+
     return (
         <div className="page-container monitor-page">
-             <button onClick={() => set_page('home')} className="monitor-back-button">
+            <button onClick={() => set_page('home')} className="monitor-back-button">
                 ← Back to Home
             </button>
             
             <main>
-                <h1>Live Monitor</h1>
-                <p>System is {isMonitoring ? "active" : "inactive"}. Please fill out the profile below to begin.</p>
+                <h1>Live Monitor for <span style={{color: '#fff'}}>{user}</span></h1>
+                <p>System is {isMonitoring ? "active" : "inactive"}. Please fill out and save the profile below to begin.</p>
                 
                 <div className="monitor-controls">
                     <button 
