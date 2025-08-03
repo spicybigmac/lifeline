@@ -23,8 +23,8 @@ const Monitor: FC<MonitorComponentProps> = ({ set_page, user }) => {
     const analysisInterval = useRef<NodeJS.Timeout | null>(null);
     const [processedData, setProcessedData] = useState({ image: null, detections: [] });
 
-    const interval_ms = 250;
-    const threshold = 40;
+    const interval_ms = 500;
+    const threshold = 20;
     let fallCount = 0;
 
     useEffect(() => {
