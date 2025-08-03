@@ -1,3 +1,6 @@
+/* app/globals.css */
+
+/* Basic Reset & Typography */
 body {
     margin: 0;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -18,7 +21,7 @@ p {
     color: #b0b0b0;
 }
 
-/* Heartbeat Animation Background */
+/* --- UPDATED HEARTBEAT ANIMATION STYLES (MASKING METHOD) --- */
 .heartbeat-bg {
     position: fixed;
     top: 0;
@@ -26,35 +29,56 @@ p {
     width: 100%;
     height: 100%;
     z-index: -1;
-    opacity: 0.35;
     overflow: hidden;
+
+    /* The mask defines what part of the SVG is visible */
+    mask-image: linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0) 0%,      /* Start fully transparent */
+        rgba(0, 0, 0, 0) 48%,     /* Stay transparent until the "head" */
+        rgba(0, 0, 0, 1) 52%,     /* Sharply become opaque (visible) */
+        rgba(0, 0, 0, 1) 100%     /* End fully opaque */
+    );
+    /* The mask needs to be much wider than the container to slide across */
+    mask-size: 200% 100%;
+    mask-repeat: no-repeat;
+    
+    /* The animation now moves the mask's position */
+    animation: draw-reveal 6s linear infinite;
 }
+
 .heartbeat-bg svg {
     position: absolute;
-    width: 500%;
-    left: -25%;
+    width: 100%;
+    left: 0;
     top: 50%;
     transform: translateY(-50%);
 }
-.heartbeat-line-group {
-    animation: pulse 6s linear infinite;
-}
-.heartbeat-dot {
-    filter: drop-shadow(0 0 15px #ff6b6b);
-}
-@keyframes pulse {
-    0% { transform: translateX(-400px); }
-    100% { transform: translateX(1400px); }
+
+.heartbeat-bg svg path {
+    filter: drop-shadow(0 0 10px #ff3b3b);
 }
 
+@keyframes draw-reveal {
+    from {
+        mask-position: 100% 0; /* Mask starts on the right (hiding everything) */
+    }
+    to {
+        mask-position: -100% 0; /* Mask ends on the left (having revealed everything) */
+    }
+}
+
+/* General Layout */
 .page-container {
     min-height: 100vh;
+    position: relative;
 }
 main {
     padding: 2rem;
     text-align: center;
 }
 
+/* Navbar */
 .navbar {
     position: sticky;
     top: 0;
@@ -67,160 +91,76 @@ main {
     border-bottom: 1px solid #2a2a2a;
     z-index: 100;
 }
-.nav-brand {
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #ff3b3b;
-}
-.nav-links {
-    display: flex;
-    gap: 1rem;
-}
+.nav-brand { font-size: 1.8rem; font-weight: bold; color: #ff3b3b; }
+.nav-links { display: flex; gap: 1rem; }
 .nav-links button {
-    font-size: 1rem;
-    font-weight: 600;
-    padding: 0.5rem 1rem;
-    background-color: transparent;
-    border: 1px solid #ff3b3b;
-    color: #ff3b3b;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
+    font-size: 1rem; font-weight: 600; padding: 0.5rem 1rem; background-color: transparent;
+    border: 1px solid #ff3b3b; color: #ff3b3b; border-radius: 8px; cursor: pointer; transition: all 0.2s;
 }
-.nav-links button:hover {
-    background-color: #ff3b3b;
-    color: #0a0a0a;
-}
-.nav-links button.primary {
-    background-color: #ff3b3b;
-    color: #0a0a0a;
-}
+.nav-links button:hover { background-color: #ff3b3b; color: #0a0a0a; }
+.nav-links button.primary { background-color: #ff3b3b; color: #0a0a0a; }
 
-.hero-section {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: calc(100vh - 80px);
-}
+/* Hero Section */
+.hero-section { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 80px); }
 .hero-content h1 { font-size: 4rem; }
 .hero-content p { font-size: 1.25rem; max-width: 600px; margin: 1rem auto 2rem auto; }
 .cta-button {
-    font-size: 1.25rem;
-    font-weight: bold;
-    padding: 1rem 2.5rem;
-    background-color: #ff3b3b;
-    color: #0a0a0a;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.2s;
+    font-size: 1.25rem; font-weight: bold; padding: 1rem 2.5rem; background-color: #ff3b3b; color: #0a0a0a;
+    border: none; border-radius: 50px; cursor: pointer; transition: all 0.2s;
 }
-.cta-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(255, 59, 59, 0.5);
-}
+.cta-button:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 59, 59, 0.5); }
 
-.auth-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
+/* Auth Pages */
+.auth-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
 .auth-form-wrapper {
-    background-color: #1a1a1a;
-    padding: 3rem;
-    border-radius: 12px;
-    border: 1px solid #2a2a2a;
-    width: 100%;
-    max-width: 450px;
-    text-align: center;
+    background-color: #1a1a1a; padding: 3rem; border-radius: 12px; border: 1px solid #2a2a2a;
+    width: 100%; max-width: 450px; text-align: center;
 }
-.auth-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    margin-top: 2rem;
-}
+.auth-form { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 2rem; }
 .auth-form input {
-    padding: 1rem;
-    font-size: 1rem;
-    background-color: #0a0a0a;
-    border: 1px solid #444;
-    color: #e0e0e0;
-    border-radius: 8px;
+    padding: 1rem; font-size: 1rem; background-color: #0a0a0a; border: 1px solid #444;
+    color: #e0e0e0; border-radius: 8px;
 }
-.auth-form input:focus {
-    outline: none;
-    border-color: #ff3b3b;
-    box-shadow: 0 0 8px rgba(255, 59, 59, 0.5);
-}
+.auth-form input:focus { outline: none; border-color: #ff3b3b; box-shadow: 0 0 8px rgba(255, 59, 59, 0.5); }
 .auth-form button {
-    padding: 1rem;
-    font-size: 1.1rem;
-    font-weight: bold;
-    background-color: #ff3b3b;
-    color: #0a0a0a;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
+    padding: 1rem; font-size: 1.1rem; font-weight: bold; background-color: #ff3b3b; color: #0a0a0a;
+    border: none; border-radius: 8px; cursor: pointer;
 }
 .form-message { margin-top: 1rem; font-weight: bold; }
 .form-message.success { color: #34d399; }
 .form-message.error { color: #ff3b3b; }
+.auth-links { display: flex; justify-content: space-around; align-items: center; margin-top: 1.5rem; }
 .link-button {
-    margin-top: 1.5rem;
-    background: none;
-    border: none;
-    color: #ff3b3b;
-    cursor: pointer;
-    text-decoration: underline;
-}
-.auth-links {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    margin-top: 1.5rem;
+    background: none; border: none; color: #ff3b3b; cursor: pointer; text-decoration: underline;
 }
 
+/* Monitor Page */
 .monitor-page main { max-width: 1400px; margin: 0 auto; }
-.video-container {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    margin: 2rem 0;
-    flex-wrap: wrap;
+.monitor-back-button {
+    position: absolute; top: 1.5rem; right: 2rem; font-size: 1rem; font-weight: 600; padding: 0.5rem 1rem;
+    background-color: transparent; border: 1px solid #ff3b3b; color: #ff3b3b;
+    border-radius: 8px; cursor: pointer; transition: all 0.2s; z-index: 110;
 }
+.monitor-back-button:hover { background-color: #ff3b3b; color: #0a0a0a; }
+.video-container { display: flex; justify-content: center; gap: 2rem; margin: 2rem 0; flex-wrap: wrap; }
 .video-item {
-    flex: 1;
-    min-width: 320px;
-    max-width: 640px;
-    background-color: #000;
-    border: 2px solid #ff3b3b;
-    border-radius: 8px;
-    overflow: hidden;
+    flex: 1; min-width: 320px; max-width: 640px; background-color: #000;
+    border: 2px solid #ff3b3b; border-radius: 8px; overflow: hidden;
 }
 .video-item h3 {
-    background-color: #ff3b3b;
-    color: #0a0a0a;
-    text-shadow: none;
-    padding: 0.5rem;
-    margin: 0;
+    background-color: #ff3b3b; color: #0a0a0a; text-shadow: none; padding: 0.5rem; margin: 0;
 }
-.webcam-placeholder {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 480px;
-    color: #555;
-    font-style: italic;
-}
+.webcam-placeholder { display: flex; justify-content: center; align-items: center; height: 480px; color: #555; font-style: italic; }
 .monitor-toggle {
-    padding: 1rem 3rem;
-    font-size: 1.5rem;
-    font-weight: bold;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
+    padding: 1rem 3rem; font-size: 1.5rem; font-weight: bold;
+    border: none; border-radius: 50px; cursor: pointer;
 }
 .monitor-toggle.start { background-color: #ff3b3b; color: #0a0a0a; }
 .monitor-toggle.stop { background-color: #fff; color: #ff3b3b; border: 2px solid #ff3b3b;}
+
+@media (max-width: 768px) {
+    .hero-content h1 { font-size: 2.5rem; }
+    .nav-brand { font-size: 1.5rem; }
+    .nav-links button { font-size: 0.9rem; padding: 0.4rem 0.8rem; }
+    .monitor-back-button { top: 1rem; right: 1rem; }
+}
