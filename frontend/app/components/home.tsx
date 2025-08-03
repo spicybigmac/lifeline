@@ -19,7 +19,7 @@ const Home: FC<HomeComponentProps> = ({ set_page }) => {
                 <div className="hero-content">
                     <h1>Your Loved Ones, Always Safe.</h1>
                     <p>
-                        fall detection
+                        Using computer vision and AI-powered phone calls, <b>LifeLine</b> ensures the safety of loved ones when they fall and can't get up on their own.
                     </p>
                     <button onClick={() => { set_page("register") }} className="cta-button">
                         Get Started Now
