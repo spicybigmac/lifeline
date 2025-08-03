@@ -68,7 +68,7 @@ const Monitor: FC = () => {
         <div className="page-container monitor-page">
             <main>
                 <h1>Live Monitor</h1>
-                <p>System is {isMonitoring ? "active" : "inactive"}. Press Start to begin monitoring.</p>
+                <p>{isMonitoring ? "System is active. Press Stop to end monitoring." : "System is inactive. Press Start to begin monitoring."}</p>
                 <div className="video-container">
                     <div className="video-item source-view">
                         <h3>Camera Feed</h3>
