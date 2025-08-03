@@ -1,14 +1,12 @@
 import os
 from twilio.rest import Client
-import dotenv
-dotenv.load_dotenv()
 
 account_sid = os.getenv("twiliosid")
 auth_token = os.getenv("twilioauthtoken")
 
 twilio_phone_number = "+13656750638"
 
-ngrok_url = "https://0c0b690b54c4.ngrok-free.app"
+ngrok_url = "https://398ef167fbd3.ngrok-free.app"
 instruction_url = f"{ngrok_url}/voice?id="
 
 client = Client(account_sid, auth_token)

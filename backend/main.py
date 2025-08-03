@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Response
+from fastapi import FastAPI, HTTPException, Response, Form
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import os
@@ -31,25 +31,27 @@ app.add_middleware(
 v = "alice"
 
 transcript = {}
-callid = 0
+info = {}
 
 @app.post("/voice")
-async def voice(SpeechResult: str = "", id: int=0):
+async def voice(SpeechResult: str = Form(None), id: int=0):
     response = VoiceResponse()
     
     print(SpeechResult)
-    if (SpeechResult != ""):
-        ai_text_response = airesponse.getresponse(SpeechResult, transcript[id])
-        print(ai_text_response)
+    SpeechResult = (SpeechResult or "")
+    transcript[id] += "Them: "+SpeechResult+"\n"
+    ai_text_response = airesponse.getresponse(SpeechResult, transcript[id], info[id].fullName, info[id].address, info[id].age, info[id].conditions)
+    print(ai_text_response)
+    transcript[id] += "You: "+ai_text_response+"\n"
 
-    gather = Gather(input='speech', action='/voice?id='+str(id), speechTimeout=1)
+    gather = Gather(input='speech', action='/voice?id='+str(id), speechTimeout=2)
     gather.say(
         message=ai_text_response,
         voice=v
     )
     
     response.append(gather)
-    response.redirect('/voice?id='+str(id))
+    response.redirect('/voice?id='+str(id), method="POST")
 
     return Response(content=str(response), media_type="application/xml")
 
@@ -95,12 +97,24 @@ async def processfunction(request: ProcessRequest):
     
     raise HTTPException(422, output)
    
+class ProfileData(BaseModel):
+    username: str
+    fullName: str
+    address: str
+    age: str
+    conditions: str
+    emergencyContact: str
+
+callid = 0
 @app.post("/emergencyCall")
-async def emergencyCall():
+async def emergencyCall(profile: ProfileData):
+    global callid
+
     print("calling with id "+str(callid))
     transcript[callid] = ""
+    info[callid] = profile
 
-    call.call(callid)
+    call.call(callid, profile.emergencyContact)
 
     callid += 1
 

@@ -21,7 +21,10 @@ const Monitor: FC<MonitorComponentProps> = ({ set_page, user }) => {
     const [isMonitoring, setIsMonitoring] = useState(false);
     const webcamRef = useRef<Webcam>(null);
     const analysisInterval = useRef<NodeJS.Timeout | null>(null);
-    const [processedData, setProcessedData] = useState<{ image: string | null; detections: any[] }>({ image: null, detections: [] });
+    const [processedData, setProcessedData] = useState({ image: null, detections: [] });
+
+    const threshold = 10;
+    let fallCount = 0;
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -106,12 +109,23 @@ const Monitor: FC<MonitorComponentProps> = ({ set_page, user }) => {
             
             const data = await response.json();
             setProcessedData({ image: data[0], detections: data[1] });
-            
-            const hasFallen = processedData.detections.some((d: any) => d[5] === 0);
-            if(hasFallen) {
-                console.log(`EMERGENCY: Fall detected! Contacting: ${profile.emergencyContact}`);
-                // ADD CALLING HERE
-                stopMonitoring();
+            const hasFallen = data[1].some((d: any) => (d[5] === 0));
+
+            if (hasFallen) {
+                fallCount++;
+                if (fallCount == threshold) {
+                    console.log(`EMERGENCY: Fall detected! Contacting: ${profile.emergencyContact}`);
+                    const response2 = await fetch('http://127.0.0.1:8000/emergencyCall', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username: user, ...profile }),
+                    });
+
+                    if (!response2.ok) throw new Error("Error making call.");
+                    stopMonitoring();
+                }
+            } else {
+                fallCount = 0;
             }
 
         } catch (error) {
@@ -126,7 +140,7 @@ const Monitor: FC<MonitorComponentProps> = ({ set_page, user }) => {
             return;
         }
         setIsMonitoring(true);
-        analysisInterval.current = setInterval(analyzeFrame, 500);
+        analysisInterval.current = setInterval(analyzeFrame, 250);
     };
 
     const stopMonitoring = () => {

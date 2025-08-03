@@ -4,11 +4,11 @@ import prompts
 
 client = genai.Client(api_key=os.getenv("geminiapikey"))
 
-def getresponse(input, transcript):
-    prompt = prompts.getprompt(input, transcript)
-
+def getresponse(input, transcript, victimName, address, age, medicalConditions):
+    prompt = prompts.getprompt(input, transcript, victimName, address, age, medicalConditions)
+    
     res = client.models.generate_content(
-        model = "gemini-2.5-flash",
+        model="gemini-2.5-flash-lite",
         contents=prompt
     )
 
