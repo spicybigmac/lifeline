@@ -8,7 +8,12 @@ interface MonitorComponentProps {
     set_page: (page: string) => void;
 }
 
-const Monitor: FC<MonitorComponentProps> = ({ set_page }) => {
+// Define props to include the navigation function
+interface MonitorComponentProps {
+    set_page: (page: string) => void;
+}
+
+const Monitor: FC<MonitorComponentProps><MonitorComponentProps> = ({ set_page }{ set_page }) => {
     const [isMonitoring, setIsMonitoring] = useState(false);
     const webcamRef = useRef<Webcam>(null);
     const analysisInterval = useRef<NodeJS.Timeout | null>(null);
@@ -77,6 +82,11 @@ const Monitor: FC<MonitorComponentProps> = ({ set_page }) => {
                 ← Back to Home
             </button>
             
+            {/* The Back Button, positioned via CSS */}
+            <button onClick={() => set_page('home')} className="monitor-back-button">
+                ← Back to Home
+            </button>
+            
             <main>
                 <h1>Live Monitor</h1>
                 <p>System is {isMonitoring ? "active" : "inactive"}. Press Start to begin monitoring.</p>
@@ -96,7 +106,7 @@ const Monitor: FC<MonitorComponentProps> = ({ set_page }) => {
                     </div>
                     <div className="video-item analyzed-view">
                         <h3>Analyzed View</h3>
-                        {processedData.image ? (
+                        {isMonitoring && processedData.image ? (
                             <img src={`data:image/jpeg;base64,${processedData.image}`} alt="Analyzed frame" />
                         ) : (
                             <div className="webcam-placeholder">Awaiting analysis...</div>

@@ -35,9 +35,10 @@ p {
     mask-image: linear-gradient(
         to right,
         rgba(0, 0, 0, 0) 0%,      /* Start fully transparent */
-        rgba(0, 0, 0, 0) 48%,     /* Stay transparent until the "head" */
-        rgba(0, 0, 0, 1) 52%,     /* Sharply become opaque (visible) */
-        rgba(0, 0, 0, 1) 100%     /* End fully opaque */
+        rgba(0, 0, 0, 0) 40%,     /* Stay transparent until the "head" */
+        rgba(0, 0, 0, 1) 60%,     /* Sharply become opaque (visible) */
+        rgba(0, 0, 0, 1) 98%,     /* End fully opaque */
+        rgba(0, 0, 0, 0) 100%
     );
     /* The mask needs to be much wider than the container to slide across */
     mask-size: 200% 100%;
@@ -49,19 +50,19 @@ p {
 
 .heartbeat-bg svg {
     position: absolute;
-    width: 100%;
-    left: 0;
-    top: 50%;
+    width: 400%;
+    left: -50%;
+    top: 55.5%;
     transform: translateY(-50%);
 }
 
 .heartbeat-bg svg path {
-    filter: drop-shadow(0 0 10px #ff3b3b);
+    filter: drop-shadow(0 0 10px rgb(255, 0, 0));
 }
 
 @keyframes draw-reveal {
     from {
-        mask-position: 100% 0; /* Mask starts on the right (hiding everything) */
+        mask-position: 200% 0; /* Mask starts on the right (hiding everything) */
     }
     to {
         mask-position: -100% 0; /* Mask ends on the left (having revealed everything) */
