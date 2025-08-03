@@ -21,6 +21,58 @@ p {
     color: #b0b0b0;
 }
 
+.column-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 120%;
+    height: 120%;
+    z-index: -2;
+    overflow: hidden;
+    animation: move 10s linear infinite;
+    opacity: 1;
+}
+
+.column-bg svg{
+    position: absolute;
+    width: 400%;
+    overflow: hidden;
+}
+
+.row-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 120%;
+    height: 120%;
+    z-index: -2;
+    overflow: hidden;
+    animation: move 6s linear infinite;
+    opacity: 1;
+}
+
+.row-bg svg{
+    position: absolute;
+    width: 400%;
+    overflow: hidden;
+}
+
+@keyframes move{
+    0%{
+        opacity: 0;
+        left: -20%;
+        top: -10%;
+    }
+    30%, 70%{
+        opacity: 1;
+    }
+    100%{
+        opacity: 0;
+        left: 0;
+        top: 0;
+    }
+}
+
 /* --- UPDATED HEARTBEAT ANIMATION STYLES (MASKING METHOD) --- */
 .heartbeat-bg {
     position: fixed;
