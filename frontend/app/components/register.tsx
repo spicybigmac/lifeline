@@ -1,96 +1,54 @@
-import { useState } from 'react';
+"use client";
+import React, { useState, FC, FormEvent } from 'react';
 
-function Register(props) {
+interface AuthComponentProps {
+    set_page: (page: string) => void;
+    set_user: (user: string) => void;
+}
+
+const Register: FC<AuthComponentProps> = ({ set_page, set_user }) => {
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setMessage('');
-
-        const endpoint = '/api/register';
-
         try {
-            const response = await fetch(endpoint, {
+            const response = await fetch('/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, password }),
             });
-
             const data = await response.json();
-
             setMessage(data.message);
-            if (response.status === 201) {
-                props.set_user(name);
-                props.set_page("monitor");
+            if (response.ok) {
+                set_user(name);
+                set_page("monitor");
             }
-
         } catch (error) {
             setMessage('An unexpected error occurred.');
         }
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-brand-gray">
-            <div className="w-full max-w-lg p-8 space-y-8 bg-white rounded-lg shadow-xl">
-                <div className="text-center">
-                <h1 className="text-4xl font-bold text-brand-text mb-2">
-                    Welcome
-                </h1>
-                <p className="text-xl text-gray-600">
-                    Please enter your details to register.
-                </p>
-                </div>
-
-                <form className="space-y-8" onSubmit={handleSubmit}>
-                    {/* Username Input */}
-                    <div>
-                        <label 
-                        htmlFor="username" 
-                        className="block text-2xl font-bold text-gray-700 mb-2"
-                        >
-                        Username
-                        </label>
-                        <input
-                        type="text"
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                        className="w-full px-4 py-4 text-xl text-gray-600 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue"
-                        placeholder="Enter your username"
-                        />
-                    </div>
-
-                    {/* Password Input */}
-                    <div>
-                        <label 
-                        htmlFor="password" 
-                        className="block text-2xl font-bold text-gray-700 mb-2"
-                        >
-                        Password
-                        </label>
-                        <input
-                        type="password"
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        className="w-full px-4 py-4 text-xl text-gray-600 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue"
-                        placeholder="Enter your password"
-                        />
-                    </div>
-
-                    {/* Register Button */}
-                    <button
-                        type="submit"
-                        className="w-full py-5 text-2xl font-bold text-white bg-brand-green rounded-lg shadow-lg hover:bg-brand-green-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-green"
-                    >
-                        Register
-                    </button>
+        <div className="auth-container">
+            <div className="auth-form-wrapper">
+                <h1>Create Your Account</h1>
+                <p>Join us to ensure safety and peace of mind.</p>
+                <form className="auth-form" onSubmit={handleSubmit}>
+                    <input type="text" placeholder="Username" onChange={(e) => setName(e.target.value)} required />
+                    <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} required />
+                    <button type="submit">Register</button>
                 </form>
-
-                {message && <p style={{ marginTop: '1rem', color: message.includes('successful') ? 'green' : 'red' }}>{message}</p>}
+                {message && <p className={`form-message ${message.includes('successful') ? 'success' : 'error'}`}>{message}</p>}
+                <div className="auth-links">
+                    <button className="link-button" onClick={() => set_page('home')}>← Back to Home</button>
+                    <button className="link-button" onClick={() => set_page('login')}>Already have an account?</button>
+                </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default Register
+export default Register;
