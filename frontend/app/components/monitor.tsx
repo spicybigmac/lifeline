@@ -14,8 +14,8 @@ const Monitor: FC<MonitorComponentProps> = ({ set_page }) => {
     const analysisInterval = useRef<NodeJS.Timeout | null>(null);
     const [processedData, setProcessedData] = useState<{ image: string | null; detections: any[] }>({ image: null, detections: [] });
     const fallCounter = useRef(0);
-    const FALL_THRESHOLD = 5;
-    const ANALYSIS_INTERVAL_MS = 500;
+    const FALL_THRESHOLD = 40;
+    const ANALYSIS_INTERVAL_MS = 250;
 
     const analyzeFrame = async () => {
         if (!webcamRef.current) return;
@@ -23,7 +23,7 @@ const Monitor: FC<MonitorComponentProps> = ({ set_page }) => {
         if (!imageSrc) return;
 
         try {
-            const response = await fetch('http://127.0.0.1:8000/detect', {
+            const response = await fetch('http://127.0.0.1:8000/processImage', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ image: imageSrc.split(',')[1] }),
@@ -32,9 +32,9 @@ const Monitor: FC<MonitorComponentProps> = ({ set_page }) => {
             if (!response.ok) throw new Error("Error processing image.");
             
             const data = await response.json();
-            setProcessedData({ image: data.image, detections: data.detections });
+            setProcessedData({ image: data[0], detections: data[1] });
 
-            const hasFallen = data.detections.some((d: any) => d.class_name === 'fallen_person');
+            const hasFallen = processedData.detections.some((d: any) => d[5] === 0);
 
             if (hasFallen) {
                 fallCounter.current++;
@@ -79,7 +79,7 @@ const Monitor: FC<MonitorComponentProps> = ({ set_page }) => {
             
             <main>
                 <h1>Live Monitor</h1>
-                <p>System is {isMonitoring ? "active" : "inactive"}. Press Start to begin monitoring.</p>
+                <p>{isMonitoring ? "System is active. Press Stop to end monitoring." : "System is inactive. Press Start to begin monitoring."}</p>
                 <div className="video-container">
                     <div className="video-item source-view">
                         <h3>Camera Feed</h3>
@@ -96,7 +96,7 @@ const Monitor: FC<MonitorComponentProps> = ({ set_page }) => {
                     </div>
                     <div className="video-item analyzed-view">
                         <h3>Analyzed View</h3>
-                        {processedData.image ? (
+                        {isMonitoring && processedData.image ? (
                             <img src={`data:image/jpeg;base64,${processedData.image}`} alt="Analyzed frame" />
                         ) : (
                             <div className="webcam-placeholder">Awaiting analysis...</div>
