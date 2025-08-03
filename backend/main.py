@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Form, Response
+from fastapi import FastAPI, HTTPException, Response
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import os
@@ -11,6 +11,7 @@ dotenv.load_dotenv()
 
 import airesponse
 import detect
+import call
 
 app = FastAPI()
 
@@ -29,36 +30,30 @@ app.add_middleware(
 # ------------ CALL HANDLING ---------------
 v = "alice"
 
+transcript = {}
+callid = 0
+
 @app.post("/voice")
-async def voice():
-    response = VoiceResponse()
-
-    gather = Gather(input='speech', action='/handleResponse', speechTimeout=1)
-    gather.say("hi, welcome to terrahacks calling test", voice=v)
-    response.append(gather)
-
-    response.redirect('/voice')
-    return Response(content=str(response), media_type="application/xml")
-
-@app.post("/handleResponse")
-async def handle_response(SpeechResult: str = Form(None)):
+async def voice(SpeechResult: str = "", id: int=0):
     response = VoiceResponse()
     
     print(SpeechResult)
-    if (SpeechResult != None):
-        ai_text_response = airesponse.getresponse(SpeechResult)
+    if (SpeechResult != ""):
+        ai_text_response = airesponse.getresponse(SpeechResult, transcript[id])
         print(ai_text_response)
 
-    gather = Gather(input='speech', action='/handleResponse', speechTimeout=1)
+    gather = Gather(input='speech', action='/voice?id='+str(id), speechTimeout=1)
     gather.say(
         message=ai_text_response,
         voice=v
     )
     
     response.append(gather)
-    response.redirect('/handleResponse')
+    response.redirect('/voice?id='+str(id))
 
     return Response(content=str(response), media_type="application/xml")
+
+# --------------- YOLO processing ----------------
 
 class ProcessRequest(BaseModel):
     image: str
@@ -94,7 +89,7 @@ async def processfunction(request: ProcessRequest):
 
     if not success:
         raise HTTPException(422, "Failed to generate output image.")
-
+    
     if (code == 0):
         return [base64.b64encode(buffer.tobytes()).decode("utf-8"),output[0].boxes.data.tolist()]
     
@@ -102,7 +97,12 @@ async def processfunction(request: ProcessRequest):
    
 @app.post("/emergencyCall")
 async def emergencyCall():
-    print("called")
+    print("calling with id "+str(callid))
+    transcript[callid] = ""
+
+    call.call(callid)
+
+    callid += 1
 
 if (__name__ == "__main__"):
     uvicorn.run("main:app", reload=True)

@@ -1,15 +1,21 @@
+// app/components/Monitor.tsx
 "use client";
 import React, { useState, useRef, FC } from 'react';
 import Webcam from 'react-webcam';
 
-const Monitor: FC = () => {
+// Define props to include the navigation function
+interface MonitorComponentProps {
+    set_page: (page: string) => void;
+}
+
+const Monitor: FC<MonitorComponentProps> = ({ set_page }) => {
     const [isMonitoring, setIsMonitoring] = useState(false);
     const webcamRef = useRef<Webcam>(null);
     const analysisInterval = useRef<NodeJS.Timeout | null>(null);
     const [processedData, setProcessedData] = useState<{ image: string | null; detections: any[] }>({ image: null, detections: [] });
     const fallCounter = useRef(0);
-    const FALL_THRESHOLD = 40;
-    const ANALYSIS_INTERVAL_MS = 250;
+    const FALL_THRESHOLD = 5;
+    const ANALYSIS_INTERVAL_MS = 500;
 
     const analyzeFrame = async () => {
         if (!webcamRef.current) return;
@@ -17,7 +23,7 @@ const Monitor: FC = () => {
         if (!imageSrc) return;
 
         try {
-            const response = await fetch('http://127.0.0.1:8000/processImage', {
+            const response = await fetch('http://127.0.0.1:8000/detect', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ image: imageSrc.split(',')[1] }),
@@ -26,9 +32,9 @@ const Monitor: FC = () => {
             if (!response.ok) throw new Error("Error processing image.");
             
             const data = await response.json();
-            setProcessedData({ image: data[0], detections: data[1] });
+            setProcessedData({ image: data.image, detections: data.detections });
 
-            const hasFallen = processedData.detections.some((d: any) => d[5] === 0);
+            const hasFallen = data.detections.some((d: any) => d.class_name === 'fallen_person');
 
             if (hasFallen) {
                 fallCounter.current++;
@@ -66,9 +72,14 @@ const Monitor: FC = () => {
 
     return (
         <div className="page-container monitor-page">
+            {/* The Back Button, positioned via CSS */}
+            <button onClick={() => set_page('home')} className="monitor-back-button">
+                ← Back to Home
+            </button>
+            
             <main>
                 <h1>Live Monitor</h1>
-                <p>{isMonitoring ? "System is active. Press Stop to end monitoring." : "System is inactive. Press Start to begin monitoring."}</p>
+                <p>System is {isMonitoring ? "active" : "inactive"}. Press Start to begin monitoring.</p>
                 <div className="video-container">
                     <div className="video-item source-view">
                         <h3>Camera Feed</h3>
@@ -85,8 +96,8 @@ const Monitor: FC = () => {
                     </div>
                     <div className="video-item analyzed-view">
                         <h3>Analyzed View</h3>
-                        {processedData.image && isMonitoring ? (
-                            <img src={`data:image/jpeg;base64,${processedData.image}`}/>
+                        {processedData.image ? (
+                            <img src={`data:image/jpeg;base64,${processedData.image}`} alt="Analyzed frame" />
                         ) : (
                             <div className="webcam-placeholder">Awaiting analysis...</div>
                         )}
